@@ -19,6 +19,7 @@ defmodule Protocols do
   defmodule Musician, do: defstruct name: "", instrument: ""
   defmodule Dancer,  do: defstruct name: "", dance_style: ""
   defmodule Baker, do: defstruct name: ""
+  defmodule Faker, do: defstruct name: ""
 
   defimpl School, for: Musician do
     def enroll(musician) do
@@ -30,22 +31,29 @@ defmodule Protocols do
     def enroll(dancer), do: "#{dancer.name} enrolled for #{dancer.dance_style}"
   end
 
+  defimpl School, for: Baker do
+    def enroll(somebody) do
+      "#{somebody.name} enrolled"
+    end
+  end
+
   koan "Sharing an interface is the secret at school" do
     musician = %Musician{name: "Andre", instrument: "violin"}
     dancer = %Dancer{name: "Darcy", dance_style: "ballet"}
 
-    assert School.enroll(musician) == ___
-    assert School.enroll(dancer) == ___
+    assert School.enroll(musician) == "Andre signed up for violin"
+    assert School.enroll(dancer) == "Darcy enrolled for ballet"
   end
 
   koan "Sometimes we all use the same" do
     student = %Student{name: "Emily"}
-    assert School.enroll(student) == ___
+    assert School.enroll(student) == "Pupil enrolled at school"
+    assert School.enroll(%Baker{name: "Delia"}) == "Delia enrolled"
   end
 
   koan "If you don't comply you can't get in" do
-    assert_raise ___, fn ->
-      School.enroll(%Baker{name: "Delia"})
+    assert_raise Protocol.UndefinedError, fn ->
+      School.enroll(%Faker{name: "Delia"})
     end
   end
 end
